@@ -1,5 +1,6 @@
 /* ============================================================
    STEERADAR v4 — Universal DB · Deepstash UI · hardened
+   Maintained by Shravan (customized version)
    ============================================================ */
 
 (() => {
@@ -7,6 +8,12 @@
 
 const CFG = window.STEERADAR || {};
 const APP_NAME = CFG.APP_NAME || 'Steeradar';
+const DEFAULT_USER_NAME = 'Shravan';
+const LEGACY_PROFILE_NAMES = /^(surya|sr1|sai|sai varakala|surya sai)$/i;
+const configuredName = (localStorage.getItem('steeradar-name') || '').trim();
+const profileName = !configuredName || LEGACY_PROFILE_NAMES.test(configuredName)
+  ? DEFAULT_USER_NAME : configuredName;
+if (profileName !== configuredName) localStorage.setItem('steeradar-name', profileName);
 
 const $  = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
@@ -102,7 +109,7 @@ function refreshMapStyle() {
 // ---------- State ----------
 const state = {
   vehicle: null,
-  userName: localStorage.getItem('steeradar-name') || '',
+  userName: profileName,
   lanes: [],
   hivePosts: [],
   likedPosts: new Set(JSON.parse(localStorage.getItem('steeradar-liked') || '[]')),
@@ -307,7 +314,7 @@ function saveLanes() { localStorage.setItem(lanesKey(), JSON.stringify(state.lan
 function loadHive() { try { state.hivePosts = JSON.parse(localStorage.getItem(hiveKey()) || '[]'); } catch { state.hivePosts = []; } }
 function saveHive() { localStorage.setItem(hiveKey(), JSON.stringify(state.hivePosts)); }
 function saveLiked() { localStorage.setItem('steeradar-liked', JSON.stringify([...state.likedPosts])); }
-function loadName() { if (!state.userName) { state.userName = 'Driver ' + state.vehicle.slice(-4); localStorage.setItem('steeradar-name', state.userName); } }
+function loadName() { if (!state.userName) { state.userName = DEFAULT_USER_NAME; localStorage.setItem('steeradar-name', state.userName); } }
 
 // ---------- Dedupe ----------
 function dedupeLanes() {
